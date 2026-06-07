@@ -12,15 +12,15 @@ public class ViewUnifier
 
     public async Task BuildAsync()
     {
-        var unifiedText = string.Empty;
+        var sb = new StringBuilder();
         foreach (var document in _documents)
         {
-            unifiedText += $"=== {document.Name} - {document.Path} ===\n";
-            unifiedText += document.Text;
-            unifiedText += "\n\n";
+            sb.AppendLine($"=== {document.Name} - {document.Path} ===");
+            sb.AppendLine(document.Text);
+            sb.AppendLine();
         }
         var path = Path.Combine(Environment.CurrentDirectory, _documentName);
-        await File.WriteAllTextAsync(path, unifiedText);
+        await File.WriteAllTextAsync(path, sb.ToString());
     }
 
     public async Task AddDocumentAsync(string path)
