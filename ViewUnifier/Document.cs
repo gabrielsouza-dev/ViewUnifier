@@ -1,1 +1,1 @@
-﻿public record Document(string Name, string Path, string Text);
+﻿public record Document(string Name, string Path, string Content);

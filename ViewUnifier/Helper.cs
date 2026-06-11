@@ -13,7 +13,7 @@ public static class Helper
         return PathType.None;
     }
 
-    public static async Task DirectoryScanAsync(List<PathNode> pathNodes, int directoryId, string path, int dirLevel)
+    public static async Task DirectoryScanAsync(List<PathNode> pathNodes, int[] directoryId, string path, int dirLevel)
     {
         dirLevel++;
 
@@ -28,10 +28,10 @@ public static class Helper
         var directories = Directory.EnumerateDirectories(path);
         foreach (var directory in directories)
         {
-            var dirNode = new PathNode(pathNodes.Count + 1, directoryId, directory, PathType.Directory, dirLevel);
+            var dirNode = new PathNode(pathNodes.Count + 1, [..directoryId, pathNodes.Count + 1], directory, PathType.Directory, dirLevel);
 
             pathNodes.Add(dirNode);
-            await DirectoryScanAsync(pathNodes, dirNode.Id, directory, dirLevel);
+            await DirectoryScanAsync(pathNodes, dirNode.DirectoriesId, directory, dirLevel);
         }
     }
 

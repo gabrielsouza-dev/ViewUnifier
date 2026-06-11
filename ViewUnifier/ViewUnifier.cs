@@ -16,11 +16,12 @@ public class ViewUnifier
         foreach (var document in _documents)
         {
             sb.AppendLine($"=== {document.Name} - {document.Path} ===");
-            sb.AppendLine(document.Text);
+            sb.AppendLine(document.Content);
             sb.AppendLine();
         }
         var path = Path.Combine(Environment.CurrentDirectory, _documentName);
-        await File.WriteAllTextAsync(path, sb.ToString());
+
+        await File.WriteAllTextAsync(path, sb.ToString().TrimEnd());
     }
 
     public async Task AddDocumentsAsync(string[] paths)

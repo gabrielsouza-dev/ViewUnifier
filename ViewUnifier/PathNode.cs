@@ -1,1 +1,1 @@
-﻿public record PathNode(int Id, int DirectoryId, string Path, PathType PathType, int Level);
+﻿public record PathNode(int Id, int[] DirectoriesId, string Path, PathType PathType, int Level);

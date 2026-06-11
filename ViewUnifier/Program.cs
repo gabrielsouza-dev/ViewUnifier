@@ -34,13 +34,13 @@ foreach (var path in paths)
     switch (pathType)
     {
         case PathType.File:
-            var fileStruct = new PathNode(pathNodes.Count + 1, 0, path, PathType.File, dirLevel);
+            var fileStruct = new PathNode(pathNodes.Count + 1, [pathNodes.Count + 1], path, PathType.File, dirLevel);
             pathNodes.Add(fileStruct);
             break;
         case PathType.Directory:
-            var pathNode = new PathNode(pathNodes.Count + 1, 0, path, PathType.Directory, dirLevel);
+            var pathNode = new PathNode(pathNodes.Count + 1, [pathNodes.Count + 1], path, PathType.Directory, dirLevel);
             pathNodes.Add(pathNode);
-            await Helper.DirectoryScanAsync(pathNodes, pathNode.Id, path, dirLevel);
+            await Helper.DirectoryScanAsync(pathNodes, pathNode.DirectoriesId, path, dirLevel);
 
             break;
         case PathType.None:
@@ -78,7 +78,7 @@ do
                 break;
             case PathType.Directory:
                 pathNodes.Remove(selected);
-                pathNodes.RemoveAll(f => f.DirectoryId == selected.Id);
+                pathNodes.RemoveAll(f => f.DirectoriesId.Contains(selected.Id));
                 break;
         }
         Console.WriteLine("File id has been removed!");
