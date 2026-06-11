@@ -23,16 +23,19 @@ public class ViewUnifier
         await File.WriteAllTextAsync(path, sb.ToString());
     }
 
-    public async Task AddDocumentAsync(string path)
+    public async Task AddDocumentsAsync(string[] paths)
     {
-        var docName = path.Split("\\").Last();
-        var text = await DocumentReaderAsync(path);
-
-        if (!string.IsNullOrEmpty(text))
+        foreach (var path in paths)
         {
-            var document = new Document(docName, path, text);
-            _documents.Add(document);
-            PrintScrean();
+            var docName = path.Split("\\").Last();
+            var text = await DocumentReaderAsync(path);
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                var document = new Document(docName, path, text);
+                _documents.Add(document);
+                PrintScrean();
+            }
         }
     }
 

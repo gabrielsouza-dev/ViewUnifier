@@ -1,6 +1,8 @@
 ﻿
 Console.WriteLine("===== View Unifier =====");
 Console.WriteLine("");
+Console.WriteLine("This application was developed to collect and consolidate UTF-8 encoded text files for analysis and AI context generation. It enables users to select files dynamically based on directory structures, facilitating efficient content aggregation and processing.");
+Console.WriteLine("");
 Console.Write("Output File Name: ");
 var documentName = Console.ReadLine()!;
 
@@ -14,6 +16,8 @@ Console.WriteLine("");
 
 do
 {
+    input = string.Empty;
+
     Console.Write($"Path {paths.Count + 1}: ");
     input = Console.ReadLine();
     if (!string.IsNullOrEmpty(input))
@@ -21,9 +25,8 @@ do
 
 } while (!string.IsNullOrEmpty(input));
 
-
-Console.Clear();
-var viewUnifier = new ViewUnifier(documentName);
+var pathNodes = new List<PathNode>();
+var dirLevel = 0;
 foreach (var path in paths)
 {
     var pathType = Helper.IsFileOrDiretory(path);
@@ -31,10 +34,13 @@ foreach (var path in paths)
     switch (pathType)
     {
         case PathType.File:
-            await viewUnifier.AddDocumentAsync(path);
+            var fileStruct = new PathNode(pathNodes.Count + 1, 0, path, PathType.File, dirLevel);
+            pathNodes.Add(fileStruct);
             break;
         case PathType.Directory:
-            await Helper.DirectoryScanAsync(viewUnifier, path);
+            var pathNode = new PathNode(pathNodes.Count + 1, 0, path, PathType.Directory, dirLevel);
+            pathNodes.Add(pathNode);
+            await Helper.DirectoryScanAsync(pathNodes, pathNode.Id, path, dirLevel);
 
             break;
         case PathType.None:
@@ -42,6 +48,56 @@ foreach (var path in paths)
     }
 }
 
+int inputInt;
+
+Helper.PrintLayoutToRemove(pathNodes);
+do
+{
+    input = string.Empty;
+
+    Console.Write("Remove at: ");
+    input = Console.ReadLine();
+    if (string.IsNullOrEmpty(input)) break;
+
+    var isNumber = int.TryParse(input, out inputInt);
+
+    if (!isNumber)
+    {
+        Console.WriteLine("Id must be a number...");
+        continue;
+    }
+
+    var selected = pathNodes.FirstOrDefault(f => f.Id == inputInt);
+
+    if(selected is not null)
+    {
+        switch(selected.PathType)
+        {
+            case PathType.File:
+                pathNodes.Remove(selected);
+                break;
+            case PathType.Directory:
+                pathNodes.Remove(selected);
+                pathNodes.RemoveAll(f => f.DirectoryId == selected.Id);
+                break;
+        }
+        Console.WriteLine("File id has been removed!");
+        Thread.Sleep(2000);
+        Helper.PrintLayoutToRemove(pathNodes);
+    }
+    else
+    {
+        Console.WriteLine("Id not found...");
+    }
+
+
+} while (!string.IsNullOrEmpty(input));
+
+var finalPaths = pathNodes.Where(f=>f.PathType == PathType.File).Select(f=>f.Path).ToArray();
+
+Console.Clear();
+var viewUnifier = new ViewUnifier(documentName);
+await viewUnifier.AddDocumentsAsync(finalPaths);
 await viewUnifier.BuildAsync();
 
 Console.WriteLine();
